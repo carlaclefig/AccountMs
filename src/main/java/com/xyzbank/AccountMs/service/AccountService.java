@@ -1,14 +1,16 @@
 package com.xyzbank.AccountMs.service;
 
 import com.xyzbank.AccountMs.model.Account;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 
 public interface AccountService {
-    Account createAccount(Account account);
+    ResponseEntity<Object> createAccount(Account account);
+    ResponseEntity<Object> getAccountById(Long id);
     List<Account> getAllAccounts();
-    Account getAccountById(Long id);
-    Account deposit(Long accountId, Double amount);
-    Account withdraw(Long accountId, Double amount);
-    void deleteAccount(Long id);
+    ResponseEntity<Object> deposit(Long accountId, Double amount);
+    ResponseEntity<Object> withdraw(Long accountId, Double amount);
+    ResponseEntity<Object> deleteAccount(Long id);
 }
 

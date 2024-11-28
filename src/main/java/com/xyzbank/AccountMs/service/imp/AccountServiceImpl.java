@@ -4,8 +4,11 @@ import com.xyzbank.AccountMs.model.Account;
 import com.xyzbank.AccountMs.repository.AccountRepository;
 import com.xyzbank.AccountMs.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -14,48 +17,62 @@ public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
 
     @Override
-    public Account createAccount(Account account) {
-        return accountRepository.save(account);
+    public ResponseEntity<Object> createAccount(Account account) {
+        Account createdAccount = accountRepository.save(account);
+        return ResponseEntity.status(200).body(createdAccount); // Devolvemos ResponseEntity con el estado 200 OK
     }
 
     @Override
     public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+        return accountRepository.findAll(); // Este método no necesita ResponseEntity, ya que es una lista de cuentas
     }
 
     @Override
-    public Account getAccountById(Long id) {
-        return accountRepository.findById(id)
+    public ResponseEntity<Object> getAccountById(Long id) {
+        Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        return ResponseEntity.status(200).body(account); // Devolvemos ResponseEntity con la cuenta
     }
 
     @Override
-    public Account deposit(Long accountId, Double amount) {
-        Account account = getAccountById(accountId);
+    public ResponseEntity<Object> deposit(Long accountId, Double amount) {
+        Account account = (Account) getAccountById(accountId).getBody(); // Obtenemos la cuenta desde el ResponseEntity
         if (amount <= 0) throw new IllegalArgumentException("Deposit amount must be positive");
 
         account.setBalance(account.getBalance() + amount);
-        return accountRepository.save(account);
+        accountRepository.save(account);
+        return ResponseEntity.status(200).body(account); // Devolvemos ResponseEntity con el saldo actualizado
     }
 
     @Override
-    public Account withdraw(Long accountId, Double amount) {
-        Account account = getAccountById(accountId);
-        if (amount <= 0) throw new IllegalArgumentException("Withdrawal amount must be positive");
+    public ResponseEntity<Object> withdraw(Long accountId, Double amount) {
+        Account account = (Account) getAccountById(accountId).getBody();
 
-        double newBalance = account.getBalance() - amount;
-        if (account.getAccountType() == Account.AccountType.SAVINGS && newBalance < 0) {
-            throw new IllegalArgumentException("No negative balance allowed in savings accounts.");
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Withdrawal amount must be positive");
         }
-        if (account.getAccountType() == Account.AccountType.CHECKING && newBalance < -500) {
-            throw new IllegalArgumentException("Overdraft limit reached for checking accounts.");
+
+        if (account.getBalance() < amount) {
+            throw new IllegalArgumentException("Insufficient balance");
         }
-        account.setBalance(newBalance);
-        return accountRepository.save(account);
+
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account);
+        return ResponseEntity.status(200).body(account); // Devolvemos ResponseEntity con el saldo actualizado
     }
 
     @Override
-    public void deleteAccount(Long id) {
-        accountRepository.deleteById(id);
+    public ResponseEntity<Object> deleteAccount(Long id) {
+        // Intentamos encontrar la cuenta por ID usando Optional
+        Optional<Account> accountOptional = accountRepository.findById(id);
+
+        // Si la cuenta está presente, la eliminamos
+        if (accountOptional.isPresent()) {
+            accountRepository.deleteById(id);
+            return ResponseEntity.status(200).body("Account successfully deleted");
+        }
+
+        // Si no se encuentra la cuenta, devolvemos un mensaje con código 404
+        return ResponseEntity.status(404).body("Account not found");
     }
 }

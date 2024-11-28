@@ -2,8 +2,8 @@ package com.xyzbank.AccountMs.controller;
 
 import com.xyzbank.AccountMs.model.Account;
 import com.xyzbank.AccountMs.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -11,11 +11,14 @@ import java.util.List;
 @RequestMapping("/api/accounts")
 public class AccountController {
 
-    @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
+
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @PostMapping
-    public Account createAccount(@RequestBody Account account) {
+    public ResponseEntity<Object> createAccount(@RequestBody Account account) {
         return accountService.createAccount(account);
     }
 
@@ -25,18 +28,30 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public Account getAccountById(@PathVariable Long id) {
+    public ResponseEntity<Object> getAccountById(@PathVariable Long id) {
         return accountService.getAccountById(id);
     }
 
-    public AccountController(AccountService accountService) {
-        this.accountService = accountService;
+    @PutMapping("/{accountId}/deposit")
+    public ResponseEntity<Object> deposit(@PathVariable Long accountId, @RequestBody AmountRequest amountRequest) {
+        return accountService.deposit(accountId, amountRequest.getAmount());
+    }
+
+    @PutMapping("/{accountId}/withdraw")
+    public ResponseEntity<Object> withdraw(@PathVariable Long accountId, @RequestBody AmountRequest amountRequest) {
+        return accountService.withdraw(accountId, amountRequest.getAmount());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteAccount(@PathVariable Long id) {
+        // Llamamos al servicio para eliminar la cuenta y devolver la respuesta adecuada
+        return accountService.deleteAccount(id);
     }
 
     public static class AmountRequest {
         private Double amount;
 
-        // Getters y setters
+        // Getters y Setters
         public Double getAmount() {
             return amount;
         }
@@ -44,20 +59,5 @@ public class AccountController {
         public void setAmount(Double amount) {
             this.amount = amount;
         }
-    }
-
-    @PutMapping("/{accountId}/deposit")
-    public Account deposit(@PathVariable Long accountId, @RequestBody AmountRequest amountRequest) {
-        return accountService.deposit(accountId, amountRequest.getAmount());
-    }
-
-    @PutMapping("/{accountId}/withdraw")
-    public Account withdraw(@PathVariable Long accountId, @RequestBody AmountRequest amountRequest) {
-        return accountService.withdraw(accountId, amountRequest.getAmount());
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteAccount(@PathVariable Long id) {
-        accountService.deleteAccount(id);
     }
 }

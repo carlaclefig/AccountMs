@@ -24,7 +24,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AccountDTO'
         '400':
           description: >-
             Entrada incorrecta o saldo inicial insuficiente (debe ser mayor que
@@ -44,7 +44,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/AccountDTO'
         '404':
           description: No se encontraron cuentas
   /cuentas/{id}:
@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AccountDTO'
         '400':
           description: Entrada incorrecta
         '404':
@@ -118,7 +118,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AccountDTO'
         '400':
           description: Entrada incorrecta o monto de depósito inválido
         '404':
@@ -157,7 +157,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AccountDTO'
         '400':
           description: >-
             Retiro no permitido (saldo insuficiente para tipo de cuenta) o monto
@@ -170,7 +170,7 @@ paths:
           description: Error inesperado
 components:
   schemas:
-    Account:
+    AccountDTO:
       type: object
       properties:
         id:

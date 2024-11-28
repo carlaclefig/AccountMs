@@ -1,10 +1,21 @@
 package com.xyzbank.AccountMs.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
+
 import java.util.Random;
 
 @Entity
 @Table(name = "account")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Account {
 
     @Id
@@ -28,58 +39,16 @@ public class Account {
         SAVINGS, CHECKING
     }
 
-    public Account() {}
-
     public Account(AccountType accountType, Long customerId) {
-        this.accountNumber = generateAccountNumber();
+        this.accountNumber = generateAccountNumber(); // Genera un número de cuenta único
         this.accountType = accountType;
         this.customerId = customerId;
-        this.balance = 10.0; // Initial balance as specified
+        this.balance = 10.0; // Balance inicial
     }
 
-    // Generate unique account number
     private String generateAccountNumber() {
         Random random = new Random();
         int number = 1000000000 + random.nextInt(900000000);
         return String.valueOf(number);
     }
-
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public void setAccountType(AccountType accountType) {
-        this.accountType = accountType;
-    }
-
-    public Long getCustomerId() {
-        return customerId;
-    }
-
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
-
-    public void setBalance(Double balance) { this.balance = balance; }
 }
