@@ -40,10 +40,10 @@ public class Account {
     }
 
     public Account(AccountType accountType, Long customerId) {
-        this.accountNumber = generateAccountNumber(); // Genera un número de cuenta único
+        this.accountNumber = generateAccountNumber();
         this.accountType = accountType;
         this.customerId = customerId;
-        this.balance = 10.0; // Balance inicial
+        this.balance = 10.0;
     }
 
     private String generateAccountNumber() {

@@ -2,7 +2,6 @@ package com.xyzbank.AccountMs.service;
 
 import com.xyzbank.AccountMs.model.Account;
 import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 
 public interface AccountService {
