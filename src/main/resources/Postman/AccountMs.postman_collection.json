@@ -1,0 +1,394 @@
+{
+	"info": {
+		"_postman_id": "fa24fc53-cbd1-4fb0-bc03-772789666576",
+		"name": "AccountMs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "39376705"
+	},
+	"item": [
+		{
+			"name": "Crear una cuenta",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accountNumber\": \"108523567\",\r\n    \"balance\": 800,\r\n    \"accountType\": \"CHECKING\",\r\n    \"customerId\": 3\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8082/api/accounts"
+			},
+			"response": [
+				{
+					"name": "cuenta de cliente 4",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountNumber\": \"1234567890\",\r\n  \"accountType\": \"SAVINGS\",\r\n  \"customerId\": 4,\r\n  \"balance\": 50.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8082/api/accounts"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Dec 2024 05:39:12 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 1,\n    \"accountNumber\": \"1234567890\",\n    \"balance\": 50,\n    \"accountType\": \"SAVINGS\",\n    \"customerId\": 4\n}"
+				}
+			]
+		},
+		{
+			"name": "Obtener todas las cuentas",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountNumber\": \"1234567890\",\r\n  \"accountType\": \"SAVINGS\",\r\n  \"customerId\": 4,\r\n  \"balance\": 50.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8082/api/accounts"
+			},
+			"response": [
+				{
+					"name": "cuentas de clientes",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountNumber\": \"1234567890\",\r\n  \"accountType\": \"SAVINGS\",\r\n  \"customerId\": 4,\r\n  \"balance\": 50.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8082/api/accounts"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Dec 2024 05:44:10 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"id\": 1,\n        \"accountNumber\": \"1234567890\",\n        \"balance\": 50,\n        \"accountType\": \"SAVINGS\",\n        \"customerId\": 4\n    },\n    {\n        \"id\": 2,\n        \"accountNumber\": \"9876543210\",\n        \"balance\": 100,\n        \"accountType\": \"CHECKING\",\n        \"customerId\": 6\n    },\n    {\n        \"id\": 3,\n        \"accountNumber\": \"107789567\",\n        \"balance\": 520,\n        \"accountType\": \"CHECKING\",\n        \"customerId\": 8\n    },\n    {\n        \"id\": 4,\n        \"accountNumber\": \"108523567\",\n        \"balance\": 800,\n        \"accountType\": \"CHECKING\",\n        \"customerId\": 3\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Obtener cuenta por ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accountNumber\": \"1234567890\",\r\n  \"accountType\": \"SAVINGS\",\r\n  \"customerId\": 4,\r\n  \"balance\": 50.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8082/api/accounts/4"
+			},
+			"response": [
+				{
+					"name": "cuenta por id 4",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"accountNumber\": \"1234567890\",\r\n  \"accountType\": \"SAVINGS\",\r\n  \"customerId\": 4,\r\n  \"balance\": 50.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8082/api/accounts/4"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Dec 2024 05:52:24 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 4,\n    \"accountNumber\": \"108523567\",\n    \"balance\": 800,\n    \"accountType\": \"CHECKING\",\n    \"customerId\": 3\n}"
+				}
+			]
+		},
+		{
+			"name": "Realizar un depósito",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 20.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8082/api/accounts/1/deposit"
+			},
+			"response": [
+				{
+					"name": "deposito al cliente 4",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 20.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8082/api/accounts/1/deposit"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Dec 2024 05:45:43 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 1,\n    \"accountNumber\": \"1234567890\",\n    \"balance\": 70,\n    \"accountType\": \"SAVINGS\",\n    \"customerId\": 4\n}"
+				}
+			]
+		},
+		{
+			"name": "Realizar un retiro",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 80.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8082/api/accounts/3/withdraw"
+			},
+			"response": [
+				{
+					"name": "retiro del cliente 8",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 80.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8082/api/accounts/3/withdraw"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Dec 2024 05:48:08 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 3,\n    \"accountNumber\": \"107789567\",\n    \"balance\": 440,\n    \"accountType\": \"CHECKING\",\n    \"customerId\": 8\n}"
+				}
+			]
+		},
+		{
+			"name": "Eliminar una cuenta",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 80.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8082/api/accounts/2"
+			},
+			"response": [
+				{
+					"name": "cuenta con id 2 eliminado",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"amount\": 80.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:8082/api/accounts/2"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain;charset=UTF-8"
+						},
+						{
+							"key": "Content-Length",
+							"value": "28"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Dec 2024 05:49:09 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "Account successfully deleted"
+				}
+			]
+		}
+	]
+}

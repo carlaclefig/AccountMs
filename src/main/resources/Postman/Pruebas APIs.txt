@@ -1,0 +1,31 @@
+PRUEBAS APIS HTTP
+
+**Crear una cuenta: 
+POST http://localhost:8082/api/accounts
+{
+    "accountNumber": "108523567",
+    "balance": 800,
+    "accountType": "CHECKING",
+    "customerId": 3
+}
+
+**Obtener todas las cuentas:
+GET http://localhost:8082/api/accounts
+
+**Obtener cuenta por ID: 
+GET http://localhost:8082/api/accounts/4
+
+**Realizar un depósito:
+PUT http://localhost:8082/api/accounts/1/deposit
+{
+  "amount": 20.0
+}
+
+**Realizar un retiro:
+PUT http://localhost:8082/api/accounts/3/withdraw
+{
+  "amount": 80.0
+}
+
+**Eliminar un cliente:
+DELETE http://localhost:8082/api/accounts/2
