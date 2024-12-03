@@ -9,60 +9,76 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@SpringJUnitConfig(Account.class)
 class AccountMsApplicationTests {
 
 	@Mock
-	private AccountRepository accountRepository; // Mock del repositorio
+	private AccountRepository accountRepository;
+
 	@Mock
 	private AccountService accountService;
+
 	@InjectMocks
 	private AccountServiceImpl accountServiceImpl;
+
 	@InjectMocks
 	private AccountController accountController;
+
 	private Account[] accountsArray;
 
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
 
-		accountsArray = new Account[] {
+		accountsArray = createAccounts();
+
+		mockAccountRepository();
+		mockAccountService();
+
+		accountController = new AccountController(accountService);
+	}
+
+	private Account[] createAccounts() {
+		Account[] accounts = new Account[] {
 				new Account(Account.AccountType.SAVINGS, 1L),
 				new Account(Account.AccountType.CHECKING, 2L),
 				new Account(Account.AccountType.SAVINGS, 3L)
 		};
+		accounts[0].setBalance(1000.0);
+		accounts[1].setBalance(1500.0);
+		accounts[2].setBalance(2000.0);
+		return accounts;
+	}
 
-		accountsArray[0].setBalance(1000.0);
-		accountsArray[1].setBalance(1500.0);
-		accountsArray[2].setBalance(2000.0);
-
+	private void mockAccountRepository() {
 		when(accountRepository.findById(1L)).thenReturn(Optional.of(accountsArray[0]));
 		when(accountRepository.findById(2L)).thenReturn(Optional.of(accountsArray[1]));
 		when(accountRepository.findById(3L)).thenReturn(Optional.of(accountsArray[2]));
-
 		when(accountRepository.save(any(Account.class))).thenReturn(accountsArray[0]);
 		when(accountRepository.existsByAccountNumber(anyString())).thenReturn(false);
+		when(accountRepository.findAll()).thenReturn(Arrays.asList(accountsArray));
+	}
 
-		accountController = new AccountController(accountService);
+	private void mockAccountService() {
+		when(accountService.getAllAccounts()).thenReturn(Arrays.asList(accountsArray[0], accountsArray[1], accountsArray[2]));
+	}
 
-		// Configuramos el comportamiento del servicio para el método getAllAccounts
-		Mockito.when(accountService.getAllAccounts()).thenReturn(Arrays.asList(
-				new Account(Account.AccountType.SAVINGS, 1L),
-				new Account(Account.AccountType.CHECKING, 2L),
-				new Account(Account.AccountType.SAVINGS, 3L)
-		));
+	private void assertAccountBalance(Account account, double expectedBalance) {
+		assertNotNull(account);
+		assertEquals(expectedBalance, account.getBalance(), 500.0);
 	}
 
 	@Test
@@ -81,14 +97,19 @@ class AccountMsApplicationTests {
 	}
 
 	@Test
-	public void testGetAllAccounts() {
-		// Realizamos la aserción directamente en el resultado de la llamada al método del controlador
-		List<Account> accounts = accountController.getAllAccounts();  // Invocamos el método del controlador
-		assertNotNull(accounts);  // Verifica que la lista no sea nula
-		assertEquals(3, accounts.size());  // Verifica que haya 3 cuentas
+	public void testGetAllAccounts_Service() {
+		when(accountRepository.findAll()).thenReturn(Arrays.asList(accountsArray[0], accountsArray[1], accountsArray[2]));
 
-		// Verificar que el servicio haya sido invocado correctamente
-		Mockito.verify(accountService, Mockito.times(1)).getAllAccounts();
+		List<Account> response = accountServiceImpl.getAllAccounts();
+
+		assertNotNull(response);
+		assertEquals(3, response.size());
+
+		assertEquals(accountsArray[0], response.get(0));
+		assertEquals(accountsArray[1], response.get(1));
+		assertEquals(accountsArray[2], response.get(2));
+
+		verify(accountRepository, times(1)).findAll();
 	}
 
 
@@ -104,73 +125,141 @@ class AccountMsApplicationTests {
 	}
 
 	@Test
-	public void testWithdraw_SuccessfulWithdrawal() {
-		ResponseEntity<Object> response = accountServiceImpl.withdraw(1L, 500.0);
+	public void testGetAccountById_AccountNotFound() {
+		when(accountRepository.findById(99L)).thenReturn(Optional.empty());
+
+		ResponseEntity<Object> response = accountServiceImpl.getAccountById(99L);
+
+		assertEquals(404, response.getStatusCodeValue());
+
+		String message = (String) response.getBody();
+		assertNotNull(message);
+		assertEquals("Account not found", message);
+	}
+
+	@Test
+	public void testWithdraw_InsufficientBalance_Savings() {
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+			accountServiceImpl.withdraw(1L, 1500.0);  // Monto mayor que el saldo disponible
+		});
+		assertEquals("Insufficient balance", thrown.getMessage());
+	}
+
+	@Test
+	public void testWithdraw_InsufficientBalance_Checking_OverdraftExceeded() {
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+			accountServiceImpl.withdraw(2L, 2100.0);  // Monto mayor que el saldo + el límite de sobregiro (-500)
+		});
+		assertEquals("Insufficient balance (overdraft limit exceeded)", thrown.getMessage());
+	}
+
+	@Test
+	public void testWithdraw_SuccessfulWithdrawal_Checking() {
+		double withdrawalAmount = 1800.0;
+
+		when(accountRepository.findById(2L)).thenReturn(Optional.of(accountsArray[1]));
+		when(accountRepository.save(any(Account.class))).thenReturn(accountsArray[1]);
+
+		ResponseEntity<Object> response = accountServiceImpl.withdraw(2L, withdrawalAmount);
+
 		assertEquals(200, response.getStatusCodeValue());
+
 		Account updatedAccount = (Account) response.getBody();
-		assertNotNull(updatedAccount);
-		assertEquals(500.0, updatedAccount.getBalance(), 0.0);
+		assertEquals(1500.0 - 1800.0, updatedAccount.getBalance(), 0.0);  // Saldo actualizado: -300
+
+		verify(accountRepository, times(1)).findById(2L);
+		verify(accountRepository, times(1)).save(any(Account.class));
+	}
+
+	@Test
+	public void testWithdraw_SuccessfulWithdrawal_Savings() {
+		double withdrawalAmount = 500.0;
+
+		when(accountRepository.findById(1L)).thenReturn(Optional.of(accountsArray[0]));
+		when(accountRepository.save(any(Account.class))).thenReturn(accountsArray[0]);
+
+		ResponseEntity<Object> response = accountServiceImpl.withdraw(1L, withdrawalAmount);
+
+		assertEquals(200, response.getStatusCodeValue());
+
+		Account updatedAccount = (Account) response.getBody();
+		assertEquals(1000.0 - withdrawalAmount, updatedAccount.getBalance(), 0.0);  // Saldo actualizado: 500
+
+		verify(accountRepository, times(1)).findById(1L);
+		verify(accountRepository, times(1)).save(any(Account.class));
+	}
+
+	@Test
+	public void testWithdraw_InvalidAmount() {
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+			accountServiceImpl.withdraw(1L, -100.0);
+		});
+		assertEquals("Withdrawal amount must be positive", thrown.getMessage());
+
+		thrown = assertThrows(IllegalArgumentException.class, () -> {
+			accountServiceImpl.withdraw(1L, 0.0);
+		});
+		assertEquals("Withdrawal amount must be positive", thrown.getMessage());
 	}
 
 	@Test
 	public void testDeposit_SuccessfulDeposit() {
-		// Datos para la prueba
 		Long accountId = 1L;
 		double depositAmount = 500.0;
 		double initialBalance = 1000.0;
-		double expectedBalance = initialBalance + depositAmount;  // Balance esperado después del depósito
+		double expectedBalance = initialBalance + depositAmount;
 
-		// Preparamos la cuenta con un saldo inicial
-		Account accountToDeposit = accountsArray[0]; // cuenta con saldo inicial 1000.0
+		Account accountToDeposit = accountsArray[0];
 
-		// Simulamos la respuesta del repositorio al buscar la cuenta por ID
 		when(accountRepository.findById(accountId)).thenReturn(Optional.of(accountToDeposit));
-		// Simulamos el comportamiento de guardar la cuenta actualizada en el repositorio
 		when(accountRepository.save(any(Account.class))).thenReturn(accountToDeposit);
 
-		// Llamamos al servicio de depósito
 		ResponseEntity<Object> response = accountServiceImpl.deposit(accountId, depositAmount);
 
-		// Verificamos que la respuesta sea correcta (código 200 y saldo actualizado)
-		assertEquals(200, response.getStatusCodeValue());  // Aseguramos que el estado de la respuesta sea OK
+		assertEquals(200, response.getStatusCodeValue());
 		Account result = (Account) response.getBody();
-		assertNotNull(result);  // Aseguramos que el cuerpo de la respuesta no sea nulo
-		assertEquals(expectedBalance, result.getBalance(), 0.0);  // Comprobamos que el saldo actualizado es el esperado
+		assertAccountBalance(result, expectedBalance);
 
-		// Verificamos que el repositorio haya guardado la cuenta actualizada
 		verify(accountRepository, times(1)).save(accountToDeposit);
 	}
 
 	@Test
+	public void testDeposit_InvalidAmount() {
+		Long accountId = 1L;
+		double negativeDepositAmount = -100.0;
+
+		Account accountToDeposit = accountsArray[0];
+		when(accountRepository.findById(accountId)).thenReturn(Optional.of(accountToDeposit));
+
+		IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+			accountServiceImpl.deposit(accountId, negativeDepositAmount);
+		});
+		assertEquals("Deposit amount must be positive", thrown.getMessage());
+
+		verify(accountRepository, times(0)).save(any(Account.class));
+	}
+
+	@Test
 	public void testDeleteAccount_Success() {
-		// Mock de cuenta encontrada
 		when(accountRepository.findById(1L)).thenReturn(Optional.of(accountsArray[0]));
 
-		// Llamamos al servicio para eliminar la cuenta
 		ResponseEntity<Object> response = accountServiceImpl.deleteAccount(1L);
 
-		// Verificamos que la respuesta sea correcta: código 200 y mensaje de éxito
 		assertEquals(200, response.getStatusCodeValue());
 		assertEquals("Account successfully deleted", response.getBody());
 
-		// Verificamos que el método deleteById fue llamado exactamente una vez
 		verify(accountRepository, times(1)).deleteById(1L);
 	}
 
-	// Nuevo test: verificamos el caso en que la cuenta no se encuentra (y se devuelve 404)
 	@Test
 	public void testDeleteAccount_NotFound() {
-		// Mock de cuenta no encontrada
 		when(accountRepository.findById(1L)).thenReturn(Optional.empty());
 
-		// Llamamos al servicio para eliminar la cuenta
 		ResponseEntity<Object> response = accountServiceImpl.deleteAccount(1L);
 
-		// Verificamos que la respuesta sea correcta: código 404 y mensaje de "Account not found"
 		assertEquals(404, response.getStatusCodeValue());
 		assertEquals("Account not found", response.getBody());
 
-		// Verificamos que el método deleteById NO fue llamado
 		verify(accountRepository, never()).deleteById(1L);
 	}
 }
