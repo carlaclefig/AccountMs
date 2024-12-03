@@ -4,7 +4,7 @@ info:
   description: API para gestionar cuentas bancarias de los clientes en el banco XYZ
   version: 1.0.0
 servers:
-  - url: http://localhost:8081/api
+  - url: http://localhost:8082/api
     description: Servidor local de desarrollo
 paths:
   /cuentas:
