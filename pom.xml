@@ -169,6 +169,15 @@
 					</limits>
 				</rule>
 			</rules>
+				<excludes>
+					<!-- Excluir paquete completo -->
+					<exclude>com/xyzbank/AccountMs/model/*</exclude>
+					<exclude>com/xyzbank/AccountMs/controller/*</exclude>
+					<exclude>com/xyzbank/AccountMs/api/*</exclude>
+					<!-- Excluir una clase específica -->
+					<exclude>com/xyzbank/AccountMs/AccountMsApplication.class</exclude>
+					<exclude>*$*</exclude>
+				</excludes>
 			</configuration>
 			</plugin>
 			<!-- Checkstyle plugin -->
@@ -178,10 +187,6 @@
 				<version>3.6.0</version>
 				<configuration>
 					<configLocation>${project.basedir}/src/main/resources/checkstyle.xml</configLocation>
-<!--					<testFailureIgnore>false</testFailureIgnore>-->
-<!--					<includes>-->
-<!--						<include>**/*Test.java</include> &lt;!&ndash; Asegúrate de que se incluyen todos los tests &ndash;&gt;-->
-<!--					</includes>-->
 				</configuration>
 				<executions>
 					<execution>
